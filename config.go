@@ -1,26 +1,23 @@
 package main
 
 var (
-	debug bool = false
+	debugEnabled bool = true
 
-	datasetFilePath = "./data.json"
+	datasetFilePath = "./data/2023.json"
 
-	topEightOnly = true
+	topEightOnly = false
 
-	nonFrenchPlayersIgnore = true
+	nonFrenchPlayersIgnore = false
 	nonFrenchPlayersSuffix = "_nfp"
 
 	totalScoreCountBestFirst  bool    = true
-	totalScoreDiminishingRate float64 = 0.8
+	totalScoreDiminishingRate float64 = 0.2
 	totalScoreMaxEvents       int     = 0
 	totalScoreMaxEventBonus   float64 = 0
 
 	// true
 	sizeFactorEnabled   bool = true
 	sizeFactorUseMedian bool = true
-
-	// MaxRounds ?
-	// MaxRoundsUndefeated ?
 
 	rankingScoreSequences = [][]int{
 		// 0 - Custom
