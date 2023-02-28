@@ -148,9 +148,20 @@ func main() {
 	w := new(tabwriter.Writer).Init(os.Stdout, 8, 8, 0, '\t', 0)
 	defer w.Flush()
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t", "RANK", "PLAYER", "SCORE", "EVENTS")
+	rank := 0
+	prevRank := -1
+	prevScore := -1.0
 	for idx, pName := range rankings {
 		p := players[pName]
-		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", idx+1, pName, p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
+
+		rank = idx + 1
+		if p.TotalScore == float64(prevScore) {
+			rank = prevRank
+		}
+		prevRank = rank
+		prevScore = p.TotalScore
+
+		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, pName, p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
 		if idx == 7 {
 			if topEightOnly {
 				break

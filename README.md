@@ -16,7 +16,7 @@
 | 06 | rémi.durand | 5.00 | 1/0 |
 | 07 | guillaume.fois | 3.00 | 1/0 |
 | 08 | maxime.sagot | 2.00 | 1/0 |
+| 09 | billy.becone | 1.00 | 1/0 |
+| 09 | pierre.amichaud | 1.00 | 1/0 |
 | 09 | david.moran | 1.00 | 1/0 |
-| 10 | pierre.amichaud | 1.00 | 1/0 |
-| 11 | christophe.marais | 1.00 | 1/0 |
-| 12 | billy.becone | 1.00 | 1/0 |
+| 09 | christophe.marais | 1.00 | 1/0 |
