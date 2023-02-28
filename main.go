@@ -161,7 +161,7 @@ func main() {
 		prevRank = rank
 		prevScore = p.TotalScore
 
-		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, pName, p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
+		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, formatName(pName), p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
 		if idx == 7 {
 			if topEightOnly {
 				break
@@ -170,6 +170,10 @@ func main() {
 		}
 	}
 	w.Write([]byte("\n"))
+}
+
+func formatName(n string) string {
+	return strings.Title(strings.ReplaceAll(n, ".", " "))
 }
 
 func debug(f string, a ...any) {
