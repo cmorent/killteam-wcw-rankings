@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -8,6 +9,11 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+
+	"cloud.google.com/go/firestore"
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 var (
@@ -145,6 +151,21 @@ func main() {
 		return players[rankings[i]].TotalScore > players[rankings[j]].TotalScore
 	})
 
+	ctx := context.Background()
+	sa := option.WithCredentialsFile("sa.json")
+
+	app, err := firebase.NewApp(ctx, nil, sa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	cl, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer cl.Close()
+
 	w := new(tabwriter.Writer).Init(os.Stdout, 8, 8, 0, '\t', 0)
 	defer w.Flush()
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t", "RANK", "PLAYER", "SCORE", "EVENTS")
@@ -160,6 +181,38 @@ func main() {
 		}
 		prevRank = rank
 		prevScore = p.TotalScore
+
+		// Firestore
+		pts := strings.Split(pName, ".")
+		if len(pts) == 1 {
+			pts = append(pts, "")
+		}
+
+		iter := cl.Collection("rankings").Where("firstname", "==", pts[0]).Where("lastname", "==", pts[1]).Documents(ctx)
+		for {
+			doc, err := iter.Next()
+			if err == iterator.Done {
+				break
+			}
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = cl.Collection("rankings").Doc(doc.Ref.ID).Update(ctx, []firestore.Update{
+				{
+					Path:  "rank",
+					Value: rank,
+				},
+				{
+					Path:  "score",
+					Value: p.TotalScore,
+				},
+			})
+			if err != nil {
+				log.Fatalf("update error: %s", err)
+			}
+		}
 
 		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, formatName(pName), p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
 		if idx == 7 {

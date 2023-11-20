@@ -4,6 +4,10 @@
 
 - Kill Team Warzone Orléans III
 - Linounette Paris Tournament II
+- KTF & Co N°4
+- Tournoi KillTeam Normandie IV
+- FWC Kill Team #2
+
 
 ### Classement
 
