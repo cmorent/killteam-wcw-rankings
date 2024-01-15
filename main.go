@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,46 +9,20 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
-	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
-
-var (
-	avgAttendees    float64 = 0
-	medianAttendees float64 = 0
-)
-
-func getTotalScore(pScore []float64) float64 {
-	if totalScoreCountBestFirst {
-		sort.Sort(sort.Reverse(sort.Float64Slice(pScore)))
-	}
-
-	if totalScoreMaxEvents > 0 && len(pScore) >= totalScoreMaxEvents {
-		pScore = pScore[:totalScoreMaxEvents]
-	}
-
-	var c float64 = 1
-	var res float64
-	for _, s := range pScore {
-		res += s * c
-		c -= totalScoreDiminishingRate
-	}
-	return res
-}
 
 func getSizeFactor(s int) float64 {
 	if !sizeFactorEnabled {
 		return 1
 	}
-
-	d := avgAttendees
-	if sizeFactorUseMedian {
-		d = medianAttendees
+	k := s / 8 * 8
+	if k > 32 {
+		k = 32
 	}
 
-	return float64(s) * 1 / float64(d)
+	return sizeFactors[k]
 }
 
 func getRankingScore(r int) float64 {
@@ -58,7 +31,7 @@ func getRankingScore(r int) float64 {
 	if idx < 0 {
 		idx = 0
 	}
-	return float64(f[idx])
+	return f[idx]
 }
 
 type Player struct {
@@ -69,9 +42,12 @@ type Player struct {
 }
 
 func (p *Player) ComputeScore() {
-	p.TotalScore = getTotalScore(p.Scores)
-	if totalScoreMaxEvents > 0 && len(p.Tournaments) >= totalScoreMaxEvents {
-		p.TotalScore += totalScoreMaxEventBonus
+	sort.Sort(sort.Reverse(sort.Float64Slice(p.Scores)))
+
+	var c float64 = 1
+	for _, score := range p.Scores {
+		p.TotalScore += score * c
+		c -= totalScoreDiminishingRate
 	}
 }
 
@@ -82,48 +58,23 @@ func main() {
 	}
 	defer fs.Close()
 
-	var tData map[string][]string
-	err = json.NewDecoder(fs).Decode(&tData)
+	var data map[string][]string
+	err = json.NewDecoder(fs).Decode(&data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Compute both average and median number of attendees
-	nbPlayers := 0
-	var tAttendees []int
-	for _, tPlayers := range tData {
-		nbPlayers += len(tPlayers)
-		tAttendees = append(tAttendees, len(tPlayers))
-	}
-	sort.Ints(tAttendees)
-
-	avgAttendees = float64(nbPlayers) / float64(len(tData))
-	if len(tAttendees) == 1 {
-		medianAttendees = float64(tAttendees[0])
-	} else if len(tAttendees) == 2 {
-		medianAttendees = float64((tAttendees[0] + tAttendees[1]) / 2)
-	} else if len(tAttendees)%2 != 0 {
-		medianAttendees = float64(tAttendees[(len(tAttendees)+1)/2-1])
-	} else {
-		medianAttendees = float64(tAttendees[len(tAttendees)/2-1])
-	}
-	debug("Average number of players: %.2f\n", avgAttendees)
-	debug("Median number of players: %.2f\n\n", medianAttendees)
-
 	// Parse Rankings
+
 	players := make(map[string]*Player)
+	for name, rankings := range data {
+		sizeFactor := getSizeFactor(len(rankings))
 
-	for tName, tRankings := range tData {
-		// Compute size factor
-		sizeFactor := getSizeFactor(len(tRankings))
-		debug("tournament %s - %d players (%.2f)\n", tName, len(tRankings), sizeFactor)
+		debug("tournament %s - %d players (%.2f)\n", name, len(rankings), sizeFactor)
 
-		for idx, pName := range tRankings {
+		for idx, pName := range rankings {
 			if strings.HasSuffix(pName, nonFrenchPlayersSuffix) {
-				if nonFrenchPlayersIgnore {
-					continue
-				}
-				pName = strings.TrimSuffix(pName, nonFrenchPlayersSuffix)
+				continue
 			}
 
 			p, ok := players[pName]
@@ -131,14 +82,12 @@ func main() {
 				p = &Player{pName, []float64{}, 0.0, []string{}}
 				players[pName] = p
 			}
+
 			p.Scores = append(p.Scores, getRankingScore(idx+1)*sizeFactor)
-			p.Tournaments = append(p.Tournaments, tName)
+			p.Tournaments = append(p.Tournaments, name)
 		}
 	}
 	debug("\n")
-	// j, _ := json.MarshalIndent(players, "", "\t")
-	// debug(string(j))
-	// debug("\n")
 
 	// Compute Scores
 	rankings := make([]string, 0, len(players))
@@ -151,74 +100,72 @@ func main() {
 		return players[rankings[i]].TotalScore > players[rankings[j]].TotalScore
 	})
 
-	ctx := context.Background()
-	sa := option.WithCredentialsFile("sa.json")
+	// ctx := context.Background()
+	// sa := option.WithCredentialsFile("sa.json")
 
-	app, err := firebase.NewApp(ctx, nil, sa)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// app, err := firebase.NewApp(ctx, nil, sa)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	cl, err := app.Firestore(ctx)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// cl, err := app.Firestore(ctx)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	defer cl.Close()
+	// defer cl.Close()
 
+	// Format console display
 	w := new(tabwriter.Writer).Init(os.Stdout, 8, 8, 0, '\t', 0)
 	defer w.Flush()
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t", "RANK", "PLAYER", "SCORE", "EVENTS")
-	rank := 0
-	prevRank := -1
+
+	rank, prevRank := 0, -1
 	prevScore := -1.0
 	for idx, pName := range rankings {
 		p := players[pName]
 
 		rank = idx + 1
-		if p.TotalScore == float64(prevScore) {
+		if p.TotalScore == prevScore {
 			rank = prevRank
 		}
 		prevRank = rank
 		prevScore = p.TotalScore
 
-		// Firestore
-		pts := strings.Split(pName, ".")
-		if len(pts) == 1 {
-			pts = append(pts, "")
-		}
+		// 	// Firestore
+		// 	pts := strings.Split(pName, ".")
+		// 	if len(pts) == 1 {
+		// 		pts = append(pts, "")
+		// 	}
 
-		iter := cl.Collection("rankings").Where("firstname", "==", pts[0]).Where("lastname", "==", pts[1]).Documents(ctx)
-		for {
-			doc, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
+		// 	iter := cl.Collection("rankings").Where("firstname", "==", pts[0]).Where("lastname", "==", pts[1]).Documents(ctx)
+		// 	for {
+		// 		doc, err := iter.Next()
+		// 		if err == iterator.Done {
+		// 			break
+		// 		}
 
-			if err != nil {
-				log.Fatal(err)
-			}
+		// 		if err != nil {
+		// 			log.Fatal(err)
+		// 		}
 
-			_, err = cl.Collection("rankings").Doc(doc.Ref.ID).Update(ctx, []firestore.Update{
-				{
-					Path:  "rank",
-					Value: rank,
-				},
-				{
-					Path:  "score",
-					Value: p.TotalScore,
-				},
-			})
-			if err != nil {
-				log.Fatalf("update error: %s", err)
-			}
-		}
+		// 		_, err = cl.Collection("rankings").Doc(doc.Ref.ID).Update(ctx, []firestore.Update{
+		// 			{
+		// 				Path:  "rank",
+		// 				Value: rank,
+		// 			},
+		// 			{
+		// 				Path:  "score",
+		// 				Value: p.TotalScore,
+		// 			},
+		// 		})
+		// 		if err != nil {
+		// 			log.Fatalf("update error: %s", err)
+		// 		}
+		// 	}
 
-		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, formatName(pName), p.TotalScore, len(p.Tournaments), totalScoreMaxEvents)
+		fmt.Fprintf(w, "\n %.2d\t%s\t%.2f\t%d/%d\t", rank, formatName(pName), p.TotalScore, len(p.Tournaments), len(data))
 		if idx == 7 {
-			if topEightOnly {
-				break
-			}
 			fmt.Fprint(w, "\n --\t------------\t-----\t---\t")
 		}
 	}
@@ -226,7 +173,8 @@ func main() {
 }
 
 func formatName(n string) string {
-	return strings.Title(strings.ReplaceAll(n, ".", " "))
+	caser := cases.Title(language.French)
+	return caser.String(strings.ReplaceAll(n, ".", " "))
 }
 
 func debug(f string, a ...any) {

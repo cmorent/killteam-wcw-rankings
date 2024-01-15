@@ -3,23 +3,23 @@ package main
 var (
 	debugEnabled bool = true
 
-	datasetFilePath = "./data/2023.json"
+	datasetFilePath = "./data/2024.json"
 
-	topEightOnly = false
-
-	nonFrenchPlayersIgnore = false
 	nonFrenchPlayersSuffix = "_nfp"
 
-	totalScoreCountBestFirst  bool    = true
-	totalScoreDiminishingRate float64 = 0.2
-	totalScoreMaxEvents       int     = 0
-	totalScoreMaxEventBonus   float64 = 0
+	totalScoreDiminishingRate float64 = 0.20
 
 	// true
-	sizeFactorEnabled   bool = true
-	sizeFactorUseMedian bool = true
+	sizeFactorEnabled bool = true
+	sizeFactors            = map[int]float64{
+		0:  0.6,
+		8:  0.8,
+		16: 1,
+		24: 1.2,
+		32: 1.4,
+	}
 
-	rankingScoreSequences = [][]int{
+	rankingScoreSequences = [][]float64{
 		// 0 - Custom
 		{1, 2, 3, 4, 5, 7, 8, 10, 12},
 		// 1 - Fibonacci

@@ -1,12 +1,8 @@
-# killteam WCW - Qualifications FR 2023
+# killteam WCW - Qualifications FR 2024
 
 ### Tournois joués
 
-- Kill Team Warzone Orléans III
-- Linounette Paris Tournament II
-- KTF & Co N°4
-- Tournoi KillTeam Normandie IV
-- FWC Kill Team #2
+- Kill Team Geek Life Le Mans
 
 
 ### Classement
