@@ -3,6 +3,9 @@
 ### Tournois joués
 
 - Kill Team Geek Life Le Mans
+- EDIL KT Into the Dark 2024
+- Warzone Aurelianum IV
+- Tournoi Killteam BLUFF
 
 
 ### Classement
