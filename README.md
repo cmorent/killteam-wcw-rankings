@@ -9,6 +9,7 @@
 - Kill Team Lyon War Club
 - Linounette Paris Tournament III
 - Tournoi KillTeam Normandie V
+- Paris Killzone GT #1
 
 
 ### Classement
