@@ -9,6 +9,9 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func getSizeFactor(factors map[int]float64, s int) float64 {
@@ -148,4 +151,13 @@ func main() {
 	if err = displayRankings(rankings, players, eventsData); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func formatName(n string) string {
+	caser := cases.Title(language.French)
+	return caser.String(strings.ReplaceAll(n, ".", " "))
+}
+
+func debug(f string, a ...any) {
+	fmt.Printf(f, a...)
 }
