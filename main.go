@@ -16,7 +16,7 @@ import (
 
 type Config struct {
 	Port         string `envconfig:"PORT" default:"8080"`
-	DBBucketName string `envconfig:"DB_BUCKET_NAME" default:"kf-kt-wcw-rankings"`
+	DBBucketName string `envconfig:"DB_BUCKET_NAME" default:"kzf-kt-wcw-rankings"`
 }
 
 func main() {
