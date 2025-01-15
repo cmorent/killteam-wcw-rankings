@@ -1,7 +1,6 @@
-package main
+package scoring
 
 type Config struct {
-	datasetFilePath           string
 	nonFrenchPlayersSuffix    string
 	nonOrganizerPlayerSuffix  string
 	totalScoreDiminishingRate float64
@@ -12,7 +11,6 @@ type Config struct {
 
 func initConfig() Config {
 	return Config{
-		datasetFilePath:           "./data/2024.json",
 		nonFrenchPlayersSuffix:    "_fp",
 		nonOrganizerPlayerSuffix:  "_to",
 		totalScoreDiminishingRate: 0.20,
