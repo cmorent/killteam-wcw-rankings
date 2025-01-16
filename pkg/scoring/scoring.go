@@ -29,11 +29,11 @@ func getRankingScore(eventSize, rank int) float64 {
 	return float64(eventSize - rank)
 }
 
-func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]Player, error) {
+func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]*Player, error) {
 	cfg := initConfig()
 
 	// Parse Rankings, keep an index of players
-	players := make(map[string]Player)
+	players := make(map[string]*Player)
 	for eventName, rankings := range eventsRankings {
 		eventSize := len(rankings)
 		sizeFactor := getSizeFactor(cfg.sizeFactors, eventSize)
@@ -52,7 +52,7 @@ func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]Player, erro
 			// and then add score data for the event.
 			p, ok := players[playerName]
 			if !ok {
-				p = Player{playerName, []float64{}, 0.0, []string{}}
+				p = &Player{playerName, []float64{}, 0.0, []string{}}
 				players[playerName] = p
 			}
 
@@ -69,7 +69,7 @@ func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]Player, erro
 	}
 
 	// Compute total scores
-	rankings := []Player{}
+	rankings := []*Player{}
 	for _, p := range players {
 		p.ComputeTotalScore(cfg.totalScoreDiminishingRate, cfg.minDiminishedRate)
 		rankings = append(rankings, p)

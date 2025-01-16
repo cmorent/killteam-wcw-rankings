@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/cmorent/killteam-wcw-rankings/pkg/db"
+	"github.com/rs/cors"
 )
 
 type Server struct {
@@ -29,7 +30,7 @@ func New(addr string, db db.DB) (*Server, error) {
 	m := http.NewServeMux()
 	m.HandleFunc("POST /events", s.HandleInsertEventResults)
 	m.HandleFunc("GET /rankings", s.HandleGetSeasonalRankings)
-	s.Handler = m
+	s.Handler = cors.AllowAll().Handler(m)
 	return s, nil
 }
 

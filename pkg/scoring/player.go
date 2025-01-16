@@ -4,7 +4,7 @@ import "sort"
 
 type Player struct {
 	Name        string    `json:"name"`
-	Scores      []float64 `json:"score"`
+	Scores      []float64 `json:"-"`
 	TotalScore  float64   `json:"totalScore"`
 	Tournaments []string  `json:"tournaments"`
 }

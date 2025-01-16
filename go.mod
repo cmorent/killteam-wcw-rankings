@@ -5,6 +5,7 @@ go 1.23
 require (
 	cloud.google.com/go/storage v1.50.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/rs/cors v1.11.1
 )
 
 require (
