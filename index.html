@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Championships of Warhammer - Circuit Qualificatif français</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #1e1e1e;
+      padding: 20px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.5em;
+      color: #FF6F00; /* Kill Team orange */
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-family: 'Anton', sans-serif;
+      margin: 0;
+    }
+    header p {
+      color: #ffffff;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #2e2e2e;
+      color: #ffffff;
+      font-size: 1.2em;
+      text-transform: uppercase;
+    }
+    td {
+      border-bottom: 1px solid #333;
+      font-size: 1em;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover {
+      background-color: #333333;
+    }
+    @media (max-width: 768px) {
+      table {
+        font-size: 0.9em;
+      }
+      th, td {
+        padding: 10px;
+      }
+    }
+    @media (max-width: 480px) {
+      table {
+        font-size: 0.8em;
+      }
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>World Championships of Warhammer<br>Circuit Qualificatif français</h1>
+</header>
+
+<div class="container">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nom</th>
+        <th>Score Total</th>
+        <th>Nombre de Tournois</th>
+      </tr>
+    </thead>
+    <tbody id="rankings-table-body">
+      <!-- Classement sera affiché ici -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  async function fetchRankings() {
+    try {
+      const response = await fetch('http://localhost:8080/rankings?year=2024');
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP! statut: ${response.status}`);
+      }
+      const rankings = await response.json();
+      populateRankings(rankings);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des classements:', error);
+      document.getElementById('rankings-table-body').innerHTML = '<tr><td colspan="4">Échec du chargement des classements. Veuillez réessayer plus tard.</td></tr>';
+    }
+  }
+
+  function formatName(name) {
+    return name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+  }
+
+  function populateRankings(rankings) {
+    const tbody = document.getElementById('rankings-table-body');
+    tbody.innerHTML = ''; // Clear any existing data
+
+    rankings.forEach((player, index) => {
+      const row = document.createElement('tr');
+
+      const rankCell = document.createElement('td');
+      rankCell.textContent = index + 1;
+      row.appendChild(rankCell);
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = formatName(player.name);
+      row.appendChild(nameCell);
+
+      const scoreCell = document.createElement('td');
+      scoreCell.textContent = player.totalScore.toFixed(2);
+      row.appendChild(scoreCell);
+
+      const tournamentsCell = document.createElement('td');
+      tournamentsCell.textContent = player.tournaments.length;
+      row.appendChild(tournamentsCell);
+
+      tbody.appendChild(row);
+    });
+  }
+
+  // Fetch and display the rankings on page load
+  fetchRankings();
+</script>
+
+</body>
+</html>
