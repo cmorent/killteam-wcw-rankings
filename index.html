@@ -150,7 +150,7 @@
 
 <header>
   <h1>World Championships of Warhammer</h1>
-  <h2 style="font-size: 1.8em; color: #bbbbbb; margin-top: 10px;">Circuit qualificatif français</h2>
+  <h2 style="font-size: 1.5em; color: #bbbbbb; margin-top: 10px;">Circuit Qualificatif français</h2>
 </header>
 
 <div class="navbar">
@@ -209,11 +209,18 @@
     const tbody = document.getElementById('rankings-table-body');
     tbody.innerHTML = ''; // Clear any existing data
 
+    let rank = 1;
+    let previousScore = null;
     rankings.forEach((player, index) => {
+      if (player.totalScore !== previousScore) {
+        rank = index + 1;
+        previousScore = player.totalScore;
+      }
+
       const row = document.createElement('tr');
 
       const rankCell = document.createElement('td');
-      rankCell.textContent = index + 1;
+      rankCell.textContent = rank;
       row.appendChild(rankCell);
 
       const nameCell = document.createElement('td');
