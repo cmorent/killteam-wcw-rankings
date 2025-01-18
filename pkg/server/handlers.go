@@ -11,6 +11,11 @@ import (
 	"github.com/cmorent/killteam-wcw-rankings/pkg/scoring"
 )
 
+type HandleInsertEventResultsRequest struct {
+	Name     string   `json:"name"`
+	Rankings []string `json:"rankings"`
+}
+
 func (s *Server) HandleInsertEventResults(w http.ResponseWriter, r *http.Request) {
 	req := HandleInsertEventResultsRequest{}
 	json.NewDecoder(r.Body).Decode(&req)

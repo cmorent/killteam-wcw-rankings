@@ -25,9 +25,9 @@ func getSequenceScore(seq []float64, r int) float64 {
 	return seq[idx]
 }
 
-func getRankingScore(eventSize, rank int) float64 {
-	return float64(eventSize - rank)
-}
+// func getRankingScore(eventSize, rank int) float64 {
+// 	return float64(eventSize - rank)
+// }
 
 func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]*Player, error) {
 	cfg := initConfig()
@@ -57,7 +57,7 @@ func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]*Player, err
 			}
 
 			score := getSequenceScore(cfg.scoreSequence, playerRanking)
-			score += getRankingScore(eventSize, playerRanking)
+			// score += getRankingScore(eventSize, playerRanking)
 			score *= sizeFactor
 
 			p.Scores = append(

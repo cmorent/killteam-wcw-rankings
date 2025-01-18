@@ -14,11 +14,6 @@ type Server struct {
 	db db.DB
 }
 
-type HandleInsertEventResultsRequest struct {
-	Name     string   `json:"name"`
-	Rankings []string `json:"rankings"`
-}
-
 func New(addr string, db db.DB) (*Server, error) {
 	s := &Server{
 		Server: &http.Server{
