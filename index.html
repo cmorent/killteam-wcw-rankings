@@ -15,23 +15,68 @@
       line-height: 1.6;
     }
     header {
+      position: relative;
       background-color: #1e1e1e;
-      padding: 20px 0;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      padding: 60px 20px;
       text-align: center;
+      overflow: hidden;
+      background-image: linear-gradient(135deg, #FF6F00, #1e1e1e);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 30%, rgba(0, 0, 0, 0.3) 70%);
+      z-index: 0;
     }
     header h1 {
-      font-size: 2.5em;
-      color: #FF6F00; /* Kill Team orange */
+      font-size: 3em;
+      color: #ffffff;
       text-transform: uppercase;
       letter-spacing: 2px;
       font-family: 'Anton', sans-serif;
       margin: 0;
+      position: relative;
+      z-index: 1;
     }
-    header p {
-      color: #ffffff;
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 5px;
+      background-color: #FF6F00;
+      border-radius: 5px;
+      z-index: 1;
+    }
+    .navbar {
+      display: flex;
+      justify-content: center;
+      background-color: #2e2e2e;
+      padding: 10px 0;
+    }
+    .navbar a {
+      color: #bbbbbb;
+      text-decoration: none;
+      margin: 0 15px;
       font-size: 1.2em;
-      margin-top: 10px;
+      text-transform: uppercase;
+      transition: color 0.3s ease, border-bottom 0.3s ease;
+      padding-bottom: 5px;
+    }
+    .navbar a:hover {
+      color: #ffffff;
+    }
+    .navbar a.active {
+      color: #ffffff;
+      border-bottom: 2px solid #FF6F00;
     }
     .container {
       max-width: 1200px;
@@ -61,11 +106,27 @@
       border-bottom: 1px solid #333;
       font-size: 1em;
     }
+    tr:nth-child(8) td {
+      border-bottom: 2px dashed #FF6F00;
+    }
     tr:last-child td {
       border-bottom: none;
     }
     tr:hover {
       background-color: #333333;
+    }
+    th:first-child, td:first-child {
+      padding-left: 20px;
+    }
+    th:last-child, td:last-child {
+      padding-right: 20px;
+      text-align: center;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      width: 50%;
+    }
+    th:nth-child(4), td:nth-child(4) {
+      width: 10%;
     }
     @media (max-width: 768px) {
       table {
@@ -91,6 +152,11 @@
   <h1>World Championships of Warhammer<br>Circuit Qualificatif français</h1>
 </header>
 
+<div class="navbar">
+  <a href="javascript:void(0)" onclick="fetchRankings(2025)" class="active">Classement 2025</a>
+  <a href="javascript:void(0)" onclick="fetchRankings(2024)">Classement 2024</a>
+</div>
+
 <div class="container">
   <table>
     <thead>
@@ -98,7 +164,7 @@
         <th>#</th>
         <th>Nom</th>
         <th>Score Total</th>
-        <th>Nombre de Tournois</th>
+        <th>Tournois</th>
       </tr>
     </thead>
     <tbody id="rankings-table-body">
@@ -108,14 +174,26 @@
 </div>
 
 <script>
-  async function fetchRankings() {
+  function setActiveLink(year) {
+    const links = document.querySelectorAll('.navbar a');
+    links.forEach(link => link.classList.remove('active'));
+    document.querySelector(`.navbar a[href="javascript:void(0)"].active`)?.classList.remove('active');
+    links.forEach(link => {
+      if (link.textContent.includes(year.toString())) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  async function fetchRankings(year) {
     try {
-      const response = await fetch('http://localhost:8080/rankings?year=2024');
+      const response = await fetch(`https://kzf-kt-wcw-rankings-1067027416847.europe-west1.run.app/rankings?year=${year}`);
       if (!response.ok) {
         throw new Error(`Erreur HTTP! statut: ${response.status}`);
       }
       const rankings = await response.json();
       populateRankings(rankings);
+      setActiveLink(year);
     } catch (error) {
       console.error('Erreur lors de la récupération des classements:', error);
       document.getElementById('rankings-table-body').innerHTML = '<tr><td colspan="4">Échec du chargement des classements. Veuillez réessayer plus tard.</td></tr>';
@@ -153,8 +231,8 @@
     });
   }
 
-  // Fetch and display the rankings on page load
-  fetchRankings();
+  // Fetch and display the 2025 rankings on page load
+  fetchRankings(2025);
 </script>
 
 </body>
