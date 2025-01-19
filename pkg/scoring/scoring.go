@@ -29,7 +29,7 @@ func getSequenceScore(seq []float64, r int) float64 {
 // 	return float64(eventSize - rank)
 // }
 
-func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]*Player, error) {
+func ComputeSeasonalRankings(eventsRankings map[string]map[string]int) ([]*Player, error) {
 	cfg := initConfig()
 
 	// Parse Rankings, keep an index of players
@@ -39,8 +39,7 @@ func ComputeSeasonalRankings(eventsRankings map[string][]string) ([]*Player, err
 		sizeFactor := getSizeFactor(cfg.sizeFactors, eventSize)
 		slog.Info(fmt.Sprintf("%s %d players (%.2f)", eventName, eventSize, sizeFactor))
 
-		for idx, playerName := range rankings {
-			playerRanking := idx + 1
+		for playerName, playerRanking := range rankings {
 
 			// Ignore foreigners and TO if any
 			if strings.HasSuffix(playerName, cfg.nonFrenchPlayersSuffix) ||

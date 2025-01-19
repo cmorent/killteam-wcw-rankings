@@ -26,7 +26,7 @@ func New(ctx context.Context, bucketName string) (*Storage, error) {
 	}, nil
 }
 
-func (db *Storage) InsertEventRankings(ctx context.Context, eventName string, rankings []string) error {
+func (db *Storage) InsertEventRankings(ctx context.Context, eventName string, rankings map[string]int) error {
 	year, _, _ := time.Now().Date()
 	dbName := fmt.Sprintf("%d.json", year)
 
@@ -44,7 +44,7 @@ func (db *Storage) InsertEventRankings(ctx context.Context, eventName string, ra
 	return nil
 }
 
-func (db *Storage) GetSeasonEventsResults(ctx context.Context, year int) (map[string][]string, error) {
+func (db *Storage) GetSeasonEventsResults(ctx context.Context, year int) (map[string]map[string]int, error) {
 	dbName := fmt.Sprintf("%d.json", year)
 
 	eventsRankings, err := db.downloadDB(ctx, dbName)
@@ -55,14 +55,14 @@ func (db *Storage) GetSeasonEventsResults(ctx context.Context, year int) (map[st
 	return eventsRankings, nil
 }
 
-func (db *Storage) downloadDB(ctx context.Context, dbName string) (map[string][]string, error) {
+func (db *Storage) downloadDB(ctx context.Context, dbName string) (map[string]map[string]int, error) {
 	sr, err := db.client.Bucket(db.bucketName).Object(dbName).NewReader(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create reader for %q: %w", fmt.Sprintf("%s/%s", db.bucketName, dbName), err)
 	}
 	defer sr.Close()
 
-	var jsonDB map[string][]string
+	var jsonDB map[string]map[string]int
 	err = json.NewDecoder(sr).Decode(&jsonDB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read GCS object: %w", err)
@@ -71,7 +71,7 @@ func (db *Storage) downloadDB(ctx context.Context, dbName string) (map[string][]
 	return jsonDB, nil
 }
 
-func (db *Storage) uploadDB(ctx context.Context, dbName string, jsonDB map[string][]string) error {
+func (db *Storage) uploadDB(ctx context.Context, dbName string, jsonDB map[string]map[string]int) error {
 	sw := db.client.Bucket(db.bucketName).Object(dbName).NewWriter(ctx)
 	defer sw.Close()
 

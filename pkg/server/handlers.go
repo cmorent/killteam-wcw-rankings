@@ -12,8 +12,8 @@ import (
 )
 
 type HandleInsertEventResultsRequest struct {
-	Name     string   `json:"name"`
-	Rankings []string `json:"rankings"`
+	Name     string         `json:"name"`
+	Rankings map[string]int `json:"rankings"`
 }
 
 func (s *Server) HandleInsertEventResults(w http.ResponseWriter, r *http.Request) {
