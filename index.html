@@ -23,17 +23,6 @@
       background-image: linear-gradient(135deg, #FF6F00, #1e1e1e);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
-    header::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(45deg);
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 30%, rgba(0, 0, 0, 0.3) 70%);
-      z-index: 0;
-    }
     header h1 {
       font-size: 3em;
       color: #ffffff;
@@ -41,20 +30,11 @@
       letter-spacing: 2px;
       font-family: 'Anton', sans-serif;
       margin: 0;
-      position: relative;
-      z-index: 1;
     }
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 5px;
-      background-color: #FF6F00;
-      border-radius: 5px;
-      z-index: 1;
+    header h2 {
+      font-size: 1.5em;
+      color: #bbbbbb;
+      margin-top: 10px;
     }
     .navbar {
       display: flex;
@@ -69,7 +49,7 @@
       text-decoration: none;
       margin: 5px 15px;
       font-size: 1.2em;
-      text-transform: uppercase;
+      text-transform: capitalize;
       transition: color 0.3s ease, border-bottom 0.3s ease;
       padding-bottom: 5px;
     }
@@ -84,7 +64,6 @@
       max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
-      overflow-y: scroll;
       box-sizing: border-box;
     }
     table {
@@ -152,7 +131,6 @@
         padding: 10px;
       }
       table {
-        width: 100%;
         font-size: 0.8em;
       }
       th, td {
@@ -177,13 +155,14 @@
 
 <header>
   <h1>World Championships of Warhammer</h1>
-  <h2 style="font-size: 1.5em; color: #bbbbbb; margin-top: 10px;">Circuit Qualificatif français</h2>
+  <h2>Circuit Qualificatif français</h2>
 </header>
 
 <div class="navbar">
   <a href="javascript:void(0)" onclick="fetchYearData(2025)" class="active">2025</a>
   <a href="javascript:void(0)" onclick="fetchYearData(2024)">2024</a>
   <a href="javascript:void(0)" onclick="fetchYearData(2023)">2023</a>
+  <a href="#tournaments">Tournois</a>
 </div>
 
 <div class="container">
@@ -203,7 +182,7 @@
 </div>
 
 <div class="container" id="tournaments-container" style="display: none;">
-  <h2 style="text-align: center; margin-bottom: 20px;">Liste des Tournois</h2>
+  <h2 id="tournaments" style="text-align: center; margin-bottom: 20px;">Liste des Tournois</h2>
   <table>
     <thead>
       <tr>
