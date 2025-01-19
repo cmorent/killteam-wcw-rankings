@@ -59,13 +59,15 @@
     .navbar {
       display: flex;
       justify-content: center;
+      align-items: center; /* Ensures items are vertically centered */
       background-color: #2e2e2e;
       padding: 10px 0;
+      flex-wrap: wrap;
     }
     .navbar a {
       color: #bbbbbb;
       text-decoration: none;
-      margin: 0 15px;
+      margin: 5px 15px;
       font-size: 1.2em;
       text-transform: uppercase;
       transition: color 0.3s ease, border-bottom 0.3s ease;
@@ -82,6 +84,8 @@
       max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
+      overflow-y: scroll; /* Ensure consistent scrollbar space */
+      box-sizing: border-box;
     }
     table {
       width: 100%;
@@ -135,13 +139,27 @@
       th, td {
         padding: 10px 15px;
       }
+      .navbar {
+        flex-direction: column;
+      }
+      .navbar a {
+        font-size: 1em;
+        margin: 5px 0;
+      }
     }
     @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
       table {
+        width: 100%; /* Make table full width on mobiles */
         font-size: 0.8em;
       }
       th, td {
         padding: 8px 12px;
+      }
+      .navbar a {
+        font-size: 0.9em;
       }
     }
   </style>
@@ -181,7 +199,7 @@
     links.forEach(link => link.classList.remove('active'));
     document.querySelector(`.navbar a[href="javascript:void(0)"].active`)?.classList.remove('active');
     links.forEach(link => {
-      if (link.textContent.includes(year.toString())) {
+      if (link.textContent === year.toString()) {
         link.classList.add('active');
       }
     });
