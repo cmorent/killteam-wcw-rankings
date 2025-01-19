@@ -59,7 +59,7 @@
     .navbar {
       display: flex;
       justify-content: center;
-      align-items: center; /* Ensures items are vertically centered */
+      align-items: center;
       background-color: #2e2e2e;
       padding: 10px 0;
       flex-wrap: wrap;
@@ -84,7 +84,7 @@
       max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
-      overflow-y: scroll; /* Ensure consistent scrollbar space */
+      overflow-y: scroll;
       box-sizing: border-box;
     }
     table {
@@ -110,11 +110,11 @@
       border-bottom: 1px solid #333;
       font-size: 1em;
     }
-    tr:nth-child(8) td {
-      border-bottom: 2px dashed #FF6F00;
+    tr.past-event {
+      color: #888;
     }
-    tr:last-child td {
-      border-bottom: none;
+    .rankings-table tr:nth-child(8) td {
+      border-bottom: 2px dashed #FF6F00; /* Orange dashed separator after 8th entry */
     }
     tr:hover {
       background-color: #333333;
@@ -152,7 +152,7 @@
         padding: 10px;
       }
       table {
-        width: 100%; /* Make table full width on mobiles */
+        width: 100%;
         font-size: 0.8em;
       }
       th, td {
@@ -164,14 +164,6 @@
     }
   </style>
 </head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LHF918Z9EL"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-LHF918Z9EL');
-</script>
 <body>
 
 <header>
@@ -180,13 +172,13 @@
 </header>
 
 <div class="navbar">
-  <a href="javascript:void(0)" onclick="fetchRankings(2025)" class="active">2025</a>
-  <a href="javascript:void(0)" onclick="fetchRankings(2024)">2024</a>
-  <a href="javascript:void(0)" onclick="fetchRankings(2023)">2023</a>
+  <a href="javascript:void(0)" onclick="fetchYearData(2025)" class="active">2025</a>
+  <a href="javascript:void(0)" onclick="fetchYearData(2024)">2024</a>
+  <a href="javascript:void(0)" onclick="fetchYearData(2023)">2023</a>
 </div>
 
 <div class="container">
-  <table>
+  <table class="rankings-table">
     <thead>
       <tr>
         <th>#</th>
@@ -201,11 +193,27 @@
   </table>
 </div>
 
+<div class="container" id="tournaments-container" style="display: none;">
+  <h2 style="text-align: center; margin-bottom: 20px;">Liste des Tournois</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Lieu</th>
+        <th>Rounds</th>
+        <th>Joueurs</th>
+      </tr>
+    </thead>
+    <tbody id="tournaments-table-body">
+      <!-- Tournament Data Will Populate Here -->
+    </tbody>
+  </table>
+</div>
+
 <script>
   function setActiveLink(year) {
     const links = document.querySelectorAll('.navbar a');
     links.forEach(link => link.classList.remove('active'));
-    document.querySelector(`.navbar a[href="javascript:void(0)"].active`)?.classList.remove('active');
     links.forEach(link => {
       if (link.textContent === year.toString()) {
         link.classList.add('active');
@@ -213,18 +221,45 @@
     });
   }
 
-  async function fetchRankings(year) {
+  async function fetchYearData(year) {
     try {
-      const response = await fetch(`https://kzf-kt-wcw-rankings-1067027416847.europe-west1.run.app/rankings?year=${year}`);
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP! statut: ${response.status}`);
+      // Fetch Rankings
+      const rankingsResponse = await fetch(`https://kzf-kt-wcw-rankings-1067027416847.europe-west1.run.app/rankings?year=${year}`);
+      if (!rankingsResponse.ok) {
+        throw new Error(`Erreur HTTP! statut: ${rankingsResponse.status}`);
       }
-      const rankings = await response.json();
+      const rankings = await rankingsResponse.json();
       populateRankings(rankings);
+
+      // Use static tournaments data for 2025
+      const tournamentsContainer = document.getElementById('tournaments-container');
+      if (year === 2025) {
+        const tournaments = [
+          { date: "18 Janvier 25", lieu: "Asgard - Rouen", rounds: 3, joueurs: 24 },
+          { date: "25 Janvier 25", lieu: "Saint Etienne", rounds: 3, joueurs: 14 },
+          { date: "09 Février 25", lieu: "Wz. Aurléanum - Orléans", rounds: 4, joueurs: 24 },
+          { date: "22 Février 25", lieu: "Lyon", rounds: 3, joueurs: 20 },
+          { date: "01 Mars 25", lieu: "B.L.U.F.F - Vivier sur Mer", rounds: 4, joueurs: 24 },
+          { date: "08 Mars 25", lieu: "Paris - FWC", rounds: 4, joueurs: 24 },
+          { date: "22 Mars 25", lieu: "JFJ - Sartrouville", rounds: 3, joueurs: 16 },
+          { date: "05 Avril 25", lieu: "Cherbourg", rounds: 4, joueurs: 20 },
+          { date: "19-20 Avril 25", lieu: "EDIL - Bordeaux", rounds: 5, joueurs: 32 },
+          { date: "26-27 Avril 25", lieu: "Linounette - Boulogne-Billancourt", rounds: 6, joueurs: 50 },
+          { date: "10 Mai 25", lieu: "Le Mans", rounds: 3, joueurs: 20 },
+          { date: "17 Mai 25", lieu: "Grenoble", rounds: 3, joueurs: 20 },
+          { date: "28 Juin 25", lieu: "Paris - FWC", rounds: 3, joueurs: 8 },
+        ];
+        populateTournaments(tournaments);
+        tournamentsContainer.style.display = 'block';
+      } else {
+        tournamentsContainer.style.display = 'none';
+      }
+
       setActiveLink(year);
     } catch (error) {
-      console.error('Erreur lors de la récupération des classements:', error);
+      console.error('Erreur lors de la récupération des données:', error);
       document.getElementById('rankings-table-body').innerHTML = '<tr><td colspan="4">Échec du chargement des classements. Veuillez réessayer plus tard.</td></tr>';
+      document.getElementById('tournaments-table-body').innerHTML = '<tr><td colspan="4">Échec du chargement des tournois. Veuillez réessayer plus tard.</td></tr>';
     }
   }
 
@@ -234,7 +269,7 @@
 
   function populateRankings(rankings) {
     const tbody = document.getElementById('rankings-table-body');
-    tbody.innerHTML = ''; // Clear any existing data
+    tbody.innerHTML = '';
 
     let rank = 1;
     let previousScore = null;
@@ -245,29 +280,64 @@
       }
 
       const row = document.createElement('tr');
-
-      const rankCell = document.createElement('td');
-      rankCell.textContent = rank;
-      row.appendChild(rankCell);
-
-      const nameCell = document.createElement('td');
-      nameCell.textContent = formatName(player.name);
-      row.appendChild(nameCell);
-
-      const scoreCell = document.createElement('td');
-      scoreCell.textContent = player.totalScore.toFixed(2);
-      row.appendChild(scoreCell);
-
-      const tournamentsCell = document.createElement('td');
-      tournamentsCell.textContent = player.tournaments.length;
-      row.appendChild(tournamentsCell);
-
+      row.innerHTML = `
+        <td>${rank}</td>
+        <td>${formatName(player.name)}</td>
+        <td>${player.totalScore.toFixed(2)}</td>
+        <td>${player.tournaments.length}</td>`;
       tbody.appendChild(row);
     });
   }
 
-  // Fetch and display the 2025 rankings on page load
-  fetchRankings(2025);
+  function populateTournaments(tournaments) {
+    const tbody = document.getElementById('tournaments-table-body');
+    tbody.innerHTML = '';
+
+    tournaments.forEach(tournament => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${tournament.date}</td>
+        <td>${tournament.lieu}</td>
+        <td>${tournament.rounds}</td>
+        <td>${tournament.joueurs}</td>`;
+      tbody.appendChild(row);
+    });
+
+    markPastEvents();
+  }
+
+  function markPastEvents() {
+    const rows = document.querySelectorAll('#tournaments-table-body tr');
+    const today = new Date();
+
+    rows.forEach(row => {
+      const dateCell = row.querySelector('td:first-child');
+      if (dateCell) {
+        const [day, month, year] = dateCell.textContent.split(' ');
+        const monthMap = {
+          Janvier: 0,
+          Février: 1,
+          Mars: 2,
+          Avril: 3,
+          Mai: 4,
+          Juin: 5,
+          Juillet: 6,
+          Août: 7,
+          Septembre: 8,
+          Octobre: 9,
+          Novembre: 10,
+          Décembre: 11,
+        };
+        const eventDate = new Date(parseInt(`20${year}`), monthMap[month], parseInt(day));
+        if (eventDate < today) {
+          row.classList.add('past-event');
+        }
+      }
+    });
+  }
+
+  // Populate data for the default year (2025)
+  fetchYearData(2025);
 </script>
 
 </body>
